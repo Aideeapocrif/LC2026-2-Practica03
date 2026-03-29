@@ -61,9 +61,43 @@ ALGORITMO DE SATURACION
 
 --Ejercicio 1
 hayResolvente :: Clausula -> Clausula -> Bool
-hayResolvente = undefined
+hayResolvente c1 c2 = length [l | l <- c1, negacion l `elem` c2] == 1
+
+--auxiliares
+pertenece :: Eq a => a -> [a] -> Bool
+pertenece _ [] = False
+pertenece x (y:ys) = x == y || pertenece x ys
+
+negacion :: Literal -> Literal
+negacion (Not p) = p
+negacion p = Not p
+
+-- Elimina duplicados
+unicos :: Eq a => [a] -> [a]
+unicos [] = []
+unicos (x:xs) = if pertenece x xs then unicos xs else x : unicos xs
+
+-- Comprueba que todos los elementos de una lista estén en la otra
+mismoConjunto :: Eq a => [a] -> [a] -> Bool
+mismoConjunto l1 l2 = allIn l1 l2 && allIn l2 l1
+    where allIn sub conj = all (\x -> pertenece x conj) sub
+
+contarPares :: Clausula -> Clausula -> Int
+contarPares [] _ = 0
+contarPares (l:ls) c2 =
+    if pertenece (negacion l) c2
+    then 1 + contarPares ls c2
+    else contarPares ls c2
 
 --Ejercicio 2
 --Funcion principal que pasa la formula proposicional a fnc e invoca a res con las clausulas de la formula.
 saturacion :: Prop -> Bool
-saturacion = undefined
+saturacion f = saturar (unicos (clausulas (fnc f)))
+     where
+      saturar s
+        | pertenece [] s = False
+        | mismoConjunto s nuevaS = True 
+        | otherwise = saturar nuevaS
+        where
+          resolventesNuevos = [resolucion c1 c2 | c1 <- s, c2 <- s, hayResolvente c1 c2]
+          nuevaS = unicos (s ++ resolventesNuevos)
