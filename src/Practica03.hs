@@ -32,7 +32,6 @@ FORMAS NORMALES
 
 --Ejercicio 1
 fnn :: Prop -> Prop
-fnn p = p
 fnn (Not (Not p)) = fnn p
 fnn (And p q) = And (fnn p) (fnn q)
 fnn (Or p q) = Or (fnn p) (fnn q)
@@ -40,6 +39,7 @@ fnn (Impl p q) = fnn (Or (Not p) q)
 fnn (Syss p q) = fnn (And (Impl p q) (Impl q p))
 fnn (Not (And p q)) = Or (fnn (Not p)) (fnn (Not q))
 fnn (Not (Or p q)) = And (fnn (Not p)) (fnn (Not q))
+fnn p = p
 
 
 --Ejercicio 2
@@ -48,12 +48,12 @@ fnc p = dist (fnn p)
 
 -- Función auxiliar para usar la propiedad de distributividad.
 dist :: Prop -> Prop
-dist p = p 
 dist (And p q) = And (dist p) (dist q)
 dist (Or p q) = case (dist p, dist q) of
     (p', And q' r') -> And (dist (Or p' q')) (dist (Or p' r'))
     (And p' q', r') -> And (dist (Or p' r')) (dist (Or q' r'))
     (p', q') -> Or p' q'
+dist p = p 
 
 {-
 RESOLUCION BINARIA
@@ -70,8 +70,8 @@ clausulas f         = [extraeLiterales f]
 
 -- Función auxiliar que nos ayuda a quitar los Or.
 extraeLiterales :: Prop -> [Literal]
-extraeLiterales l        = [l]
 extraeLiterales (Or p q) = extraeLiterales p ++ extraeLiterales q
+extraeLiterales l        = [l]
 
 --Ejercicio 2
 resolucion :: Clausula -> Clausula -> Clausula
