@@ -65,11 +65,39 @@ type Clausula = [Literal]
 
 --Ejercicio 1
 clausulas :: Prop -> [Clausula]
-clausulas = undefined
+clausulas (And p q) = clausulas p ++ clausulas q
+clausulas f         = [extraeLiterales f]
+
+-- Función auxiliar que nos ayuda a quitar los Or.
+extraeLiterales :: Prop -> [Literal]
+extraeLiterales l        = [l]
+extraeLiterales (Or p q) = extraeLiterales p ++ extraeLiterales q
 
 --Ejercicio 2
 resolucion :: Clausula -> Clausula -> Clausula
-resolucion = undefined
+resolucion c1 c2 = limpia c1 l ++ limpia c2 (opuesto l)
+  where
+    l = buscarOpuesto c1 c2
+    
+    -- Función auxiliar para buscar y eliminar el elemento negativo de la lista2.
+    buscarOpuesto (x:xs) lista2 = if tieneOpuesto x lista2 
+                                  then x 
+                                  else buscarOpuesto xs lista2
+    
+    -- Función auxiliar para checar si el negativo esta en la otra lista.
+    tieneOpuesto (Var x) lista      = elem (Not (Var x)) lista
+    tieneOpuesto (Not (Var x)) lista = elem (Var x) lista
+    tieneOpuesto _ _                = False
+
+    -- Función auxiliar que devuelve el opuesto de un literal.
+    opuesto (Var x)      = Not (Var x)
+    opuesto (Not (Var x)) = Var x
+
+    -- Función auxiliar que quita un literal específico de una lista. 
+    limpia [] _ = []
+    limpia (x:xs) borrar = if x == borrar 
+                            then limpia xs borrar 
+                            else x : limpia xs borrar
 
 {-
 ALGORITMO DE SATURACION
